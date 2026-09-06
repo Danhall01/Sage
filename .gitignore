@@ -1,0 +1,10 @@
+.git/
+.cache/
+.nvim_logs/
+
+build/
+bin/
+out/
+lib/
+
+compile_commands.json

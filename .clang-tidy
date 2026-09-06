@@ -1,0 +1,31 @@
+---
+Checks: "*,
+        -abseil-*,
+        -altera-*,
+        -android-*,
+        -fuchsia-*,
+        -google-*,
+        -llvm*,
+        -modernize-use-trailing-return-type,
+        -zircon-*,
+        -readability-else-after-return,
+        -readability-braces-around-statements,
+        -hicpp-braces-around-statements,
+        -readability-uppercase-literal-suffix,
+        -hicpp-uppercase-literal-suffix,
+        -bugprone-easily-swappable-parameters,
+        -hicpp-signed-bitwise,
+        -readability-static-accessed-through-instance,
+        -readability-avoid-const-params-in-decls,
+        -cppcoreguidelines-non-private-member-variables-in-classes,
+        -misc-non-private-member-variables-in-classes,
+"
+WarningsAsErrors: ''
+HeaderFilterRegex: ''
+FormatStyle:     none
+
+
+
+
+
+

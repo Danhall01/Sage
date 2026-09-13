@@ -34,9 +34,9 @@ add_library(
     ALIAS
     ${SAGE_LIB}
 )
-add_subdirectory(src)
-
 target_compile_features(${SAGE_LIB} PUBLIC cxx_std_23)
+
+add_subdirectory(src)
 
 # Add tests
 if (PROJECT_IS_TOP_LEVEL)

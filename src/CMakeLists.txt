@@ -4,6 +4,7 @@ target_sources(
            CXX_MODULES
            FILES
            sage.cppm
-           severity.cpp
-           log.cpp
+           core/types.cpp
+           core/severity.cpp
+           logging/logger.cpp
 )

@@ -1,11 +1,11 @@
 module;
 
-#include <cstdint>
 export module sage:severity;
+export import :types;
 
 export namespace sage
 {
-enum class Severity : std::uint8_t
+enum class Severity : sage::types::u8
 {
     TRACE = 1 << 0,
     DEBUG = 1 << 1,

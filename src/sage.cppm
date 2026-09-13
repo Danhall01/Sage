@@ -1,4 +1,5 @@
 export module sage;
 
+export import :types;
 export import :severity;
-export import :log;
+export import :logger;

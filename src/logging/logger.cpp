@@ -2,7 +2,6 @@ module;
 
 #include <concepts>
 #include <cstdio>
-#include <cstdlib>
 #include <format>
 #include <source_location>
 #include <stdexcept>
@@ -10,8 +9,9 @@ module;
 #include <string_view>
 #include <type_traits>
 #include <utility>
-export module sage:log;
+export module sage:logger;
 export import :severity;
+export import :types;
 
 namespace
 {
@@ -82,7 +82,7 @@ struct logger_str
     std::format_string<Args...> format;
     std::source_location        location;
 
-    template<std::size_t N>
+    template<sage::types::usize N>
     consteval logger_str(
         const char           (&fmt)[N],
         std::source_location whence = std::source_location::current()
@@ -121,14 +121,14 @@ using logger_runtime_str_t = logger_runtime_str<std::type_identity_t<Args>...>;
 export struct Config
 {
 #ifdef SAGE_LOG_ENABLED_SEVERITY
-    uint8_t enabled_severity = SAGE_LOG_ENABLED_SEVERITY;
+    sage::types::u8 enabled_severity = SAGE_LOG_ENABLED_SEVERITY;
 #else
-    uint8_t enabled_severity = static_cast<std::uint8_t>(sage::Severity::TRACE)
-                               | static_cast<std::uint8_t>(sage::Severity::DEBUG)
-                               | static_cast<std::uint8_t>(sage::Severity::INFO)
-                               | static_cast<std::uint8_t>(sage::Severity::WARN)
-                               | static_cast<std::uint8_t>(sage::Severity::ERROR)
-                               | static_cast<std::uint8_t>(sage::Severity::FATAL);
+    sage::types::u8 enabled_severity = static_cast<sage::types::u8>(sage::Severity::TRACE)
+                                       | static_cast<sage::types::u8>(sage::Severity::DEBUG)
+                                       | static_cast<sage::types::u8>(sage::Severity::INFO)
+                                       | static_cast<sage::types::u8>(sage::Severity::WARN)
+                                       | static_cast<sage::types::u8>(sage::Severity::ERROR)
+                                       | static_cast<sage::types::u8>(sage::Severity::FATAL);
 #endif
 #ifdef SAGE_LOG_NO_FORMATTING
     bool formatting = false;
@@ -156,7 +156,7 @@ class logger
     template<sage::Severity level>
     static void log_impl(std::source_location whence, std::string msg)
     {
-        if constexpr ((static_cast<std::uint8_t>(level) & cfg.enabled_severity) == 0)
+        if constexpr ((static_cast<sage::types::u8>(level) & cfg.enabled_severity) == 0)
             return;
 
         if constexpr (cfg.formatting)

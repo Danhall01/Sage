@@ -1,4 +1,4 @@
-# Sage Logger Module Documentation (import sage:log)
+# Sage Logger Module Documentation (import sage:io_logger)
 
 A lightweight, compile-time configurable logging module. Behaviour is primarily tuned through compile definitions; however, a custom logger can be used when the default does not fit your needs.
 
@@ -28,6 +28,7 @@ for the full setup.
 | `SAGE_LOG_NO_COLORS` | bool | Disables colored output to stdout/stderr. (File output is never colored regardless of this setting.) | `false` |
 | `SAGE_LOG_WRITE_TO_FILE` | bool | Enables writing log output to `last_run.log` on every log call. | `false` |
 | `SAGE_LOG_THROW_ON_ERROR` | bool | Throws a `std::runtime_error` whenever an `ERROR` level log is emitted. | `false` |
+| `SAGE_LOG_THROW_ON_FATAL` | bool | Throws a `std::runtime_error` whenever an `FATAL` level log is emitted. Replaces Abort(). | `false` |
 | `SAGE_LOG_NO_DEFAULT_LOGGER` | bool | Disables the built-in `sage::log` module so you can supply your own custom logger (see [Building a Custom Logger](#building-a-custom-logger)). | `false` |
 
 ---

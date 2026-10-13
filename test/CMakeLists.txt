@@ -11,7 +11,10 @@ FetchContent_MakeAvailable(googletest)
 add_executable(
     ${SAGE_TESTS}
     # Targets
-    logger/output_default_test.cpp
+    core_test.cpp
+    io/output_default_test.cpp
+    #allocator/arena_test.cpp
+    #allocator/pool_test.cpp
 )
 
 target_link_libraries(

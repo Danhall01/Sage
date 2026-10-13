@@ -6,5 +6,7 @@ target_sources(
            sage.cppm
            core/types.cpp
            core/severity.cpp
-           logging/logger.cpp
+           core/template_types.cpp
+           core/numerics.cpp
+           io/logger.cpp
 )

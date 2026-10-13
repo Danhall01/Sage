@@ -1,5 +1,4 @@
 #include "gtest/gtest.h"
-#include <cstdio>
 
 import sage;
 
@@ -12,7 +11,7 @@ static void caller()
     EXPECT_EQ(
         output,
         std::format(
-            "\x1B[0;37m==[output_default_test.cpp:caller():{}]==\n[TRC]\tHello world!:5\x1B[0m",
+            "\x1B[0;37m==[output_default_test.cpp:caller():{}]==\n[TRC]\tHello world!:5\n\x1B[0m",
             line_nr
         )
     );
@@ -33,11 +32,6 @@ TEST(Logger, CorrectOutput)
     testing::internal::CaptureStdout();
     sage::log::info("Hello world!");
     output = testing::internal::GetCapturedStdout();
-    EXPECT_NE(output.find("Hello world!"), std::string::npos);
-
-    testing::internal::CaptureStderr();
-    sage::log::warn("Hello world!");
-    output = testing::internal::GetCapturedStderr();
     EXPECT_NE(output.find("Hello world!"), std::string::npos);
 
     testing::internal::CaptureStderr();

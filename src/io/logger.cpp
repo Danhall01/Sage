@@ -9,29 +9,65 @@ module;
 #include <string_view>
 #include <type_traits>
 #include <utility>
-export module sage:logger;
-export import :severity;
-export import :types;
+export module sage:io_logger;
+export import :core_severity;
+export import :core_types;
+
+#ifdef SAGE_LOG_ENABLED_SEVERITY
+    #define SAGE_INTERNAL_LOG_ENABLED_SEVERITY SAGE_LOG_ENABLED_SEVERITY
+#else
+    #define SAGE_INTERNAL_ENABLED_SEVERITY (\
+            static_cast<sage::types::byte>(sage::Severity::TRACE) \
+            | static_cast<sage::types::byte>(sage::Severity::DEBUG) \
+            | static_cast<sage::types::byte>(sage::Severity::INFO) \
+            | static_cast<sage::types::byte>(sage::Severity::WARN) \
+            | static_cast<sage::types::byte>(sage::Severity::ERROR) \
+            | static_cast<sage::types::byte>(sage::Severity::FATAL))
+#endif
+
+#ifdef SAGE_LOG_NO_FORMATTING
+    #define SAGE_INTERNAL_FORMATTING false
+#else
+    #define SAGE_INTERNAL_FORMATTING true
+#endif
+
+#ifdef SAGE_LOG_NO_COLORS
+    #define SAGE_INTERNAL_COLORS false
+#else
+    #define SAGE_INTERNAL_COLORS true
+#endif
+
+#ifdef SAGE_LOG_WRITE_TO_FILE
+    #define SAGE_INTERNAL_WRITE_TO_FILE true
+#else
+    #define SAGE_INTERNAL_WRITE_TO_FILE false
+#endif
+
+#ifdef SAGE_LOG_THROW_ON_ERROR
+    #define SAGE_INTERNAL_THROW_ON_ERROR true
+#else
+    #define SAGE_INTERNAL_THROW_ON_ERROR false
+#endif
+
+#ifdef SAGE_LOG_THROW_ON_FATAL
+    #define SAGE_INTERNAL_THROW_ON_FATAL true
+#else
+    #define SAGE_INTERNAL_THROW_ON_FATAL false
+#endif
 
 namespace
 {
-inline void default_write_std(sage::Severity level, std::string_view msg)
+inline void default_write_std(sage::Severity level, const std::string_view& msg)
 {
     auto* write_file = level >= sage::Severity::WARN ? stderr : stdout;
     auto  write_size = std::fwrite(msg.data(), 1, msg.size(), write_file);
 }
-inline void default_write_file(std::string_view msg)
+inline void default_write_file(const std::string_view& msg)
 {
     static FILE* crashfile  = fopen("last_run.log", "w");
     auto         write_size = std::fwrite(msg.data(), 1, msg.size(), crashfile);
 }
-}  // namespace
-
-
-// Utility functions
-namespace sage::_backend::log
-{
-export consteval std::string_view format_prefix(sage::Severity severity)
+constexpr std::string_view default_format_prefix(sage::Severity severity)
 {
     switch (severity)
     {
@@ -42,18 +78,18 @@ export consteval std::string_view format_prefix(sage::Severity severity)
         case sage::Severity::INFO:
             return "INF";
         case sage::Severity::WARN:
-            return "WNR";
+            return "WRN";
         case sage::Severity::ERROR:
             return "ERR";
         case sage::Severity::FATAL:
             return "FTL";
 
         default:
-            return "UNKNOWN";
+            return "N/A";
     }
-    return "UNKNOWN";
+    std::unreachable();
 }
-export consteval std::string_view format_color(sage::Severity severity)
+constexpr std::string_view default_format_color(sage::Severity severity)
 {
     switch (severity)
     {
@@ -73,8 +109,29 @@ export consteval std::string_view format_color(sage::Severity severity)
         default:
             return "";
     }
-    return "";
+    std::unreachable();
 }
+}  // namespace
+
+// Utility functions
+namespace sage::_backend::log
+{
+export struct Config
+{
+    sage::types::byte enabled_severity = SAGE_INTERNAL_ENABLED_SEVERITY;
+    bool              formatting       = SAGE_INTERNAL_FORMATTING;
+    bool              colors           = SAGE_INTERNAL_COLORS;
+    bool              write_to_file    = SAGE_INTERNAL_WRITE_TO_FILE;
+
+    bool throw_on_error = SAGE_INTERNAL_THROW_ON_ERROR;
+    bool throw_on_fatal = SAGE_INTERNAL_THROW_ON_FATAL;
+
+    void (*std_writer)(sage::Severity, const std::string_view&) = &::default_write_std;
+    void (*file_writer)(const std::string_view&)                = &::default_write_file;
+
+    std::string_view (*format_prefix)(sage::Severity) = &::default_format_prefix;
+    std::string_view (*format_color)(sage::Severity)  = &::default_format_color;
+};
 
 export template<typename... Args>
 struct logger_str
@@ -117,46 +174,15 @@ export template<typename... Args>
 using logger_runtime_str_t = logger_runtime_str<std::type_identity_t<Args>...>;
 
 
-// Logger
-export struct Config
-{
-#ifdef SAGE_LOG_ENABLED_SEVERITY
-    sage::types::u8 enabled_severity = SAGE_LOG_ENABLED_SEVERITY;
-#else
-    sage::types::u8 enabled_severity = static_cast<sage::types::u8>(sage::Severity::TRACE)
-                                       | static_cast<sage::types::u8>(sage::Severity::DEBUG)
-                                       | static_cast<sage::types::u8>(sage::Severity::INFO)
-                                       | static_cast<sage::types::u8>(sage::Severity::WARN)
-                                       | static_cast<sage::types::u8>(sage::Severity::ERROR)
-                                       | static_cast<sage::types::u8>(sage::Severity::FATAL);
-#endif
-#ifdef SAGE_LOG_NO_FORMATTING
-    bool formatting = false;
-#else
-    bool formatting = true;
-#endif
-#ifdef SAGE_LOG_NO_COLORS
-    bool colors = false;
-#else
-    bool colors = true;
-#endif
-#ifdef SAGE_LOG_WRITE_TO_FILE
-    bool write_to_file = true;
-#else
-    bool write_to_file = false;
-#endif
-    void (*std_writer)(sage::Severity, std::string_view) = &::default_write_std;
-    void (*file_writer)(std::string_view)                = &::default_write_file;
-};
-
 export template<Config cfg = Config{}>
-class logger
+class Logger
 {
   private:
+    // msg has to accept Rvalue and Lvalue, hence copy is needed
     template<sage::Severity level>
-    static void log_impl(std::source_location whence, std::string msg)
+    static void log_impl(const std::source_location& whence, std::string msg)
     {
-        if constexpr ((static_cast<sage::types::u8>(level) & cfg.enabled_severity) == 0)
+        if constexpr ((static_cast<sage::types::byte>(level) & cfg.enabled_severity) == 0)
             return;
 
         if constexpr (cfg.formatting)
@@ -164,11 +190,11 @@ class logger
             const std::string_view fpath     = whence.file_name();
             const std::string_view func_name = whence.function_name();
             msg                              = std::format(
-                "==[{}:{}:{}]==\n[{}]\t{}",
+                "==[{}:{}:{}]==\n[{}]\t{}\n",
                 fpath.substr(fpath.find_last_of("/\\") + 1),
                 func_name.substr(func_name.find_last_of(' ') + 1),
                 whence.line(),
-                format_prefix(level),
+                cfg.format_prefix(level),
                 msg
             );
         }
@@ -176,7 +202,7 @@ class logger
             cfg.file_writer(msg);
 
         if constexpr (cfg.colors)
-            msg = std::format("{}{}{}", format_color(level), msg, "\e[0m");
+            msg = std::format("{}{}{}", cfg.format_color(level), msg, "\e[0m");
 
         cfg.std_writer(level, msg);
     }
@@ -261,9 +287,9 @@ class logger
             fmt.location,
             std::format(fmt.format, std::forward<Args>(args)...)
         );
-#ifdef SAGE_LOG_THROW_ON_ERROR
-        throw std::runtime_error(fmt.format.get().data());
-#endif
+
+        if constexpr (cfg.throw_on_error)
+            throw std::runtime_error(fmt.format.get().data());
     }
     template<typename... Args>
     static void error(logger_runtime_str_t<Args...> fmt, Args&&... args)
@@ -272,9 +298,9 @@ class logger
             fmt.location,
             std::vformat(fmt.format, std::make_format_args(args...))
         );
-#ifdef SAGE_LOG_THROW_ON_ERROR
-        throw std::runtime_error(fmt.format.get().data());
-#endif
+
+        if constexpr (cfg.throw_on_error)
+            throw std::runtime_error(fmt.format.get().data());
     }
 
 
@@ -285,7 +311,11 @@ class logger
             fmt.location,
             std::format(fmt.format, std::forward<Args>(args)...)
         );
-        abort();
+
+        if constexpr (cfg.throw_on_fatal)
+            throw std::runtime_error(fmt.format.get().data());
+        else
+            abort();
     }
     template<typename... Args>
     static void fatal(logger_runtime_str_t<Args...> fmt, Args&&... args)
@@ -294,7 +324,11 @@ class logger
             fmt.location,
             std::vformat(fmt.format, std::make_format_args(args...))
         );
-        abort();
+
+        if constexpr (cfg.throw_on_fatal)
+            throw std::runtime_error(fmt.format.get().data());
+        else
+            abort();
     }
 };
 }  // namespace sage::_backend::log
@@ -303,6 +337,6 @@ class logger
 #ifndef SAGE_LOG_NO_DEFAULT_LOGGER
 namespace sage
 {
-export using log = sage::_backend::log::logger<>;
+export using log = sage::_backend::log::Logger<>;
 }
 #endif

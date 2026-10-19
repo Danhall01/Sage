@@ -4,7 +4,7 @@
 #   - CMake >= 3.28 (module support is stable from 3.28)
 #   - Ninja >= 1.11 (needed for dyndep support)
 #   - GCC >= 14, Clang >= 16 (with clang-scan-deps), or MSVC >= 19.34 (VS 2022 17.4+)
-name: CMake (Ninja + C++ modules) on multiple platforms
+name: CMake
 
 on:
   push:

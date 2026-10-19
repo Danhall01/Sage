@@ -202,7 +202,7 @@ class Logger
             cfg.file_writer(msg);
 
         if constexpr (cfg.colors)
-            msg = std::format("{}{}{}", cfg.format_color(level), msg, "\e[0m");
+            msg = std::format("{}{}{}", cfg.format_color(level), msg, "\033[0m");
 
         cfg.std_writer(level, msg);
     }

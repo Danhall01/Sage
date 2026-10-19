@@ -136,7 +136,8 @@ using float32       = float;
 using float64       = double;
 // This type is defined to be at least 80 bit, however on most systems it is 128, there is no way to
 // guarantee this size be always consistent
-using float80_least = long double;
+// Apparently this is defined as just double on Windows systems
+using float64_least = long double;
 
 }  // namespace sage::types
 

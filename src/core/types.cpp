@@ -112,9 +112,9 @@ using isize = std::make_signed_t<usize>;
 
 static_assert(sizeof(char) == 1, "Platform does not support 8-bit char type");
 
-using char8  = char;
-using char16 = __CHAR16_TYPE__;
-using char32 = __CHAR32_TYPE__;
+using char8  = char8_t;
+using char16 = char16_t;
+using char32 = char32_t;
 
 using uchar8  = std::make_unsigned_t<char8>;
 using uchar16 = std::make_unsigned_t<char16>;

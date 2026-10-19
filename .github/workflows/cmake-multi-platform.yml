@@ -14,26 +14,33 @@ on:
 
 jobs:
   build:
+    name: ${{ matrix.toolchain }} / ${{ matrix.os }} / ${{ matrix.build_type }}
     runs-on: ${{ matrix.os }}
 
     strategy:
       # Keep going so feedback is delivered for all matrix combinations.
       fail-fast: false
 
-      # Explicit list of configurations (no cross product + exclude needed):
+      # Produces one job per toolchain (x one per build type):
       # 1. <Windows, MSVC, Ninja>
       # 2. <Linux, GCC 14, Ninja>
       # 3. <Linux, Clang 18, Ninja>
+      #
+      # To add Debug builds, use: build_type: [Release, Debug]
       matrix:
+        toolchain: [msvc, gcc, clang]
         build_type: [Release]
         include:
-          - os: windows-latest
+          - toolchain: msvc
+            os: windows-latest
             c_compiler: cl
             cpp_compiler: cl
-          - os: ubuntu-latest
+          - toolchain: gcc
+            os: ubuntu-latest
             c_compiler: gcc-14
             cpp_compiler: g++-14
-          - os: ubuntu-latest
+          - toolchain: clang
+            os: ubuntu-latest
             c_compiler: clang-18
             cpp_compiler: clang++-18
 

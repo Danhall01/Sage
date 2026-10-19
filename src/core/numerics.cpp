@@ -27,31 +27,31 @@ constexpr auto decimal_kb = 1'000U;
 export template<sage::template_types::unsigned_numeric_type T>
 constexpr auto KiB(T value)
     -> std::conditional_t<std::is_floating_point_v<T>, sage::types::float64, sage::types::usize>
-{ return static_cast<usize>(value * binary_kib); }
+{ return static_cast<sage::types::usize>(value * binary_kib); }
 
 export template<sage::template_types::unsigned_numeric_type T>
 constexpr auto MiB(T value)
     -> std::conditional_t<std::is_floating_point_v<T>, sage::types::float64, sage::types::usize>
-{ return static_cast<usize>(value * binary_kib * binary_kib); }
+{ return static_cast<sage::types::usize>(value * binary_kib * binary_kib); }
 
 export template<sage::template_types::unsigned_numeric_type T>
 constexpr auto GiB(T value)
     -> std::conditional_t<std::is_floating_point_v<T>, sage::types::float64, sage::types::usize>
-{ return static_cast<usize>(value * binary_kib * binary_kib * binary_kib); }
+{ return static_cast<sage::types::usize>(value * binary_kib * binary_kib * binary_kib); }
 
 
 export template<sage::template_types::unsigned_numeric_type T>
 constexpr auto KB(T value)
     -> std::conditional_t<std::is_floating_point_v<T>, sage::types::float64, sage::types::usize>
-{ return static_cast<usize>(value * decimal_kb); }
+{ return static_cast<sage::types::usize>(value * decimal_kb); }
 
 export template<sage::template_types::unsigned_numeric_type T>
 constexpr auto MB(T value)
     -> std::conditional_t<std::is_floating_point_v<T>, sage::types::float64, sage::types::usize>
-{ return static_cast<usize>(value * decimal_kb * decimal_kb); }
+{ return static_cast<sage::types::usize>(value * decimal_kb * decimal_kb); }
 
 export template<sage::template_types::unsigned_numeric_type T>
 constexpr auto GB(T value)
     -> std::conditional_t<std::is_floating_point_v<T>, sage::types::float64, sage::types::usize>
-{ return static_cast<usize>(value * decimal_kb * decimal_kb * decimal_kb); }
+{ return static_cast<sage::types::usize>(value * decimal_kb * decimal_kb * decimal_kb); }
 }  // namespace sage::numerics

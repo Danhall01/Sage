@@ -5,25 +5,43 @@ export module sage:core_numerics;
 export import :core_types;
 export import :core_template_types;
 
+export namespace sage::limits
+{
+template<sage::template_types::numeric_type T>
+struct limit_of
+{
+  public:
+    [[nodiscard]]
+    static constexpr T max() noexcept
+    { return std::numeric_limits<T>::max(); }
+    [[nodiscard]]
+    static constexpr T min() noexcept
+    { return std::numeric_limits<T>::min(); }
+    [[nodiscard]]
+    static constexpr T lowest() noexcept
+    { return std::numeric_limits<T>::lowest(); }
+    [[nodiscard]]
+    static constexpr T epsilon() noexcept
+    { return std::numeric_limits<T>::epsilon(); }
+};
+
+using int8  = limit_of<sage::types::int8>;
+using int16 = limit_of<sage::types::int16>;
+using int32 = limit_of<sage::types::int32>;
+using int64 = limit_of<sage::types::int64>;
+
+using uint8  = limit_of<sage::types::uint8>;
+using uint16 = limit_of<sage::types::uint16>;
+using uint32 = limit_of<sage::types::uint32>;
+using uint64 = limit_of<sage::types::uint64>;
+
+using float32       = limit_of<sage::types::float32>;
+using float64       = limit_of<sage::types::float64>;
+using float64_least = limit_of<sage::types::float64_least>;
+}  // namespace sage::limits
+
 namespace sage::numerics
 {
-// clang-format off
-export inline constexpr sage::types::int8  INT8_MAX = std::numeric_limits<sage::types::int8>::max();
-export inline constexpr sage::types::int16 INT16_MAX = std::numeric_limits<sage::types::int16>::max();
-export inline constexpr sage::types::int32 INT32_MAX = std::numeric_limits<sage::types::int32>::max();
-export inline constexpr sage::types::int64 INT64_MAX = std::numeric_limits<sage::types::int64>::max();
-
-export inline constexpr sage::types::uint8  UINT8_MAX = std::numeric_limits<sage::types::uint8>::max();
-export inline constexpr sage::types::uint64 UINT16_MAX = std::numeric_limits<sage::types::uint16>::max();
-export inline constexpr sage::types::uint64 UINT32_MAX = std::numeric_limits<sage::types::uint32>::max();
-export inline constexpr sage::types::uint64 UINT64_MAX = std::numeric_limits<sage::types::uint64>::max();
-
-export inline constexpr sage::types::float32       FLOAT32_MAX = std::numeric_limits<sage::types::float32>::max();
-export inline constexpr sage::types::float64       FLOAT64_MAX = std::numeric_limits<sage::types::float64>::max();
-export inline constexpr sage::types::float64_least FLOAT64_LEAST_MAX = std::numeric_limits<sage::types::float64_least>::max();
-// clang-format on
-
-
 constexpr auto binary_kib = 1'024U;
 constexpr auto decimal_kb = 1'000U;
 

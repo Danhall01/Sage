@@ -104,7 +104,7 @@ not be `#define`d in source.
 | `byte` | Byte | `uchar8` | raw 8-bit unsigned data |
 | `float32` | Floating-point | `float` | 32-bit, IEC 559, enforced via `static_assert` |
 | `float64` | Floating-point | `double` | 64-bit, IEC 559, enforced via `static_assert` |
-| `float80_least` | Floating-point | `long double` | at least 80-bit; storage is often 128-bit, width platform-dependent |
+| `float64_least` | Floating-point | `long double` | at least 80-bit; storage is often 128-bit, width platform-dependent |
 
 **Choosing between the integer families:**
 
@@ -223,29 +223,22 @@ Numeric limits and size helpers in `sage::numerics` (module
 
 ### Integer Limits
 
-All integer limits are `constexpr` values of matching types, initialized from
-the compiler's predefined limit macros.
+All limits are based on the `limit_of<>` struct contained under the `sage::limits` namespace. This struct can be used as a shorthand for the <limit> standard library.
+Each limit_of contains the functions `::min()`, `::max()`, `::smallest()`, and `::epsilon()`.
 
-| Constant | Type | Value | Source |
-|---|---|---|---|
-| `INT8_MAX` | `int8` | `127` | `__INT8_MAX__` |
-| `INT16_MAX` | `int16` | `32'767` | `__INT16_MAX__` |
-| `INT32_MAX` | `int32` | `2'147'483'647` | `__INT32_MAX__` |
-| `INT64_MAX` | `int64` | `9'223'372'036'854'775'807` | `__INT64_MAX__` |
-| `UINT8_MAX` | `uint8` | `255` | `__UINT8_MAX__` |
-| `UINT16_MAX` | `uint16` | `65'535` | `__UINT16_MAX__` |
-| `UINT32_MAX` | `uint32` | `4'294'967'295` | `__UINT32_MAX__` |
-| `UINT64_MAX` | `uint64` | `18'446'744'073'709'551'615` | `__UINT64_MAX__` |
-
----
-
-### Floating-Point Limits
-
-| Constant | Type | Value | Source |
-|---|---|---|---|
-| `FLOAT16_MAX` | `float32` | `65'504` | `__FLT16_MAX__` |
-| `FLOAT32_MAX` | `float32` | ≈ `3.4028235e+38` | `__FLT_MAX__` |
-| `FLOAT64_MAX` | `float32` | see note | `__DBL_MAX__` |
+| Constant |
+|---|
+| `int8` |
+| `int16` |
+| `int32` |
+| `int64` |
+| `uint8` |
+| `uint16` |
+| `uint32` |
+| `uint64` |
+| `float32` |
+| `float64` |
+| `float64_least` |
 
 ---
 
@@ -357,7 +350,7 @@ static_assert(add_one(-5) == -4); // Fail
 | Characters | `char8`, `char16`, `char32`, `uchar8`, `uchar16`, `uchar32` |
 | Raw bytes | `byte` |
 | Boolean | `bool8` |
-| Floating-point | `float32`, `float64`, `float80_least` |
+| Floating-point | `float32`, `float64`, `float64_least` |
 | Keep aliases out of the global namespace | `SAGE_TYPES_SCOPE_ENBALED` |
 | Classify a log message | `sage::Severity` |
 | Max value of an integer type | `sage::numerics::INT32_MAX`, `UINT8_MAX`, … |

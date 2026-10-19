@@ -12,7 +12,7 @@ add_executable(
     ${SAGE_TESTS}
     # Targets
     core_test.cpp
-    io/output_default_test.cpp
+    io/logger_test.cpp
     #allocator/arena_test.cpp
     #allocator/pool_test.cpp
 )

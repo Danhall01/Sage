@@ -60,17 +60,17 @@ namespace sage::_backend::log
 {
 namespace defaults
 {
-    inline void default_write_std(sage::Severity level, const std::string_view& msg)
+    inline void write_std(sage::Severity level, const std::string_view& msg)
     {
         auto* write_file = level >= sage::Severity::WARN ? stderr : stdout;
         auto  write_size = std::fwrite(msg.data(), 1, msg.size(), write_file);
     }
-    inline void default_write_file(const std::string_view& msg)
+    inline void write_file(const std::string_view& msg)
     {
         static FILE* crashfile  = fopen("last_run.log", "w");
         auto         write_size = std::fwrite(msg.data(), 1, msg.size(), crashfile);
     }
-    constexpr std::string_view default_format_prefix(sage::Severity severity)
+    constexpr std::string_view format_prefix(sage::Severity severity)
     {
         switch (severity)
         {
@@ -92,22 +92,22 @@ namespace defaults
         }
         std::unreachable();
     }
-    constexpr std::string_view default_format_color(sage::Severity severity)
+    constexpr std::string_view format_color(sage::Severity severity)
     {
         switch (severity)
         {
             case sage::Severity::TRACE:
-                return "\e[0;37m";  // Gray
+                return "\033[0;37m";  // Gray
             case sage::Severity::DEBUG:
-                return "\e[0;35m";  // Purple
+                return "\033[0;35m";  // Purple
             case sage::Severity::INFO:
-                return "\e[0;32m";  // Green
+                return "\033[0;32m";  // Green
             case sage::Severity::WARN:
-                return "\e[0;33m";  // Yellow
+                return "\033[0;33m";  // Yellow
             case sage::Severity::ERROR:
-                return "\e[0;31m";  // Red
+                return "\033[0;31m";  // Red
             case sage::Severity::FATAL:
-                return "\e[1;91m";  // DarkRed
+                return "\033[1;91m";  // DarkRed
 
             default:
                 return "";
@@ -126,11 +126,11 @@ export struct Config
     bool throw_on_error = SAGE_INTERNAL_THROW_ON_ERROR;
     bool throw_on_fatal = SAGE_INTERNAL_THROW_ON_FATAL;
 
-    void (*std_writer)(sage::Severity, const std::string_view&) = &defaults::default_write_std;
-    void (*file_writer)(const std::string_view&)                = &defaults::default_write_file;
+    void (*std_writer)(sage::Severity, const std::string_view&) = &defaults::write_std;
+    void (*file_writer)(const std::string_view&)                = &defaults::write_file;
 
-    std::string_view (*format_prefix)(sage::Severity) = &defaults::default_format_prefix;
-    std::string_view (*format_color)(sage::Severity)  = &defaults::default_format_color;
+    std::string_view (*format_prefix)(sage::Severity) = &defaults::format_prefix;
+    std::string_view (*format_color)(sage::Severity)  = &defaults::format_color;
 };
 
 export template<typename... Args>

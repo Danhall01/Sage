@@ -17,12 +17,12 @@ export import :core_types;
     #define SAGE_INTERNAL_LOG_ENABLED_SEVERITY SAGE_LOG_ENABLED_SEVERITY
 #else
     #define SAGE_INTERNAL_ENABLED_SEVERITY (\
-            static_cast<sage::types::byte>(sage::Severity::TRACE) \
-            | static_cast<sage::types::byte>(sage::Severity::DEBUG) \
-            | static_cast<sage::types::byte>(sage::Severity::INFO) \
-            | static_cast<sage::types::byte>(sage::Severity::WARN) \
-            | static_cast<sage::types::byte>(sage::Severity::ERROR) \
-            | static_cast<sage::types::byte>(sage::Severity::FATAL))
+            static_cast<sage::types::byte>(sage::Severity::Trace) \
+            | static_cast<sage::types::byte>(sage::Severity::Debug) \
+            | static_cast<sage::types::byte>(sage::Severity::Info) \
+            | static_cast<sage::types::byte>(sage::Severity::Warn) \
+            | static_cast<sage::types::byte>(sage::Severity::Error) \
+            | static_cast<sage::types::byte>(sage::Severity::Fatal))
 #endif
 
 #ifdef SAGE_LOG_NO_FORMATTING
@@ -62,7 +62,7 @@ namespace defaults
 {
     inline void write_std(sage::Severity level, const std::string_view& msg)
     {
-        auto* write_file = level >= sage::Severity::WRN ? stderr : stdout;
+        auto* write_file = level >= sage::Severity::Warn ? stderr : stdout;
         auto  write_size = std::fwrite(msg.data(), 1, msg.size(), write_file);
     }
     inline void write_file(const std::string_view& msg)
@@ -74,17 +74,17 @@ namespace defaults
     {
         switch (severity)
         {
-            case sage::Severity::TRC:
+            case sage::Severity::Trace:
                 return "TRC";
-            case sage::Severity::DBG:
+            case sage::Severity::Debug:
                 return "DBG";
             case sage::Severity::Info:
                 return "INF";
-            case sage::Severity::WRN:
+            case sage::Severity::Warn:
                 return "WRN";
-            case sage::Severity::ERR:
+            case sage::Severity::Error:
                 return "ERR";
-            case sage::Severity::FTL:
+            case sage::Severity::Fatal:
                 return "FTL";
 
             default:
@@ -96,17 +96,17 @@ namespace defaults
     {
         switch (severity)
         {
-            case sage::Severity::TRC:
+            case sage::Severity::Trace:
                 return "\033[0;37m";  // Gray
-            case sage::Severity::DBG:
+            case sage::Severity::Debug:
                 return "\033[0;35m";  // Purple
             case sage::Severity::Info:
                 return "\033[0;32m";  // Green
-            case sage::Severity::WRN:
+            case sage::Severity::Warn:
                 return "\033[0;33m";  // Yellow
-            case sage::Severity::ERR:
+            case sage::Severity::Error:
                 return "\033[0;31m";  // Red
-            case sage::Severity::FTL:
+            case sage::Severity::Fatal:
                 return "\033[1;91m";  // DarkRed
 
             default:
@@ -211,7 +211,7 @@ class Logger
     template<typename... Args>
     static void trace(logger_str_t<Args...> fmt, Args&&... args)
     {
-        log_impl<sage::Severity::TRC>(
+        log_impl<sage::Severity::Trace>(
             fmt.location,
             std::format(fmt.format, std::forward<Args>(args)...)
         );
@@ -219,7 +219,7 @@ class Logger
     template<typename... Args>
     static void trace(logger_runtime_str_t<Args...> fmt, Args&&... args)
     {
-        log_impl<sage::Severity::TRC>(
+        log_impl<sage::Severity::Trace>(
             fmt.location,
             std::vformat(fmt.format, std::make_format_args(args...))
         );
@@ -229,7 +229,7 @@ class Logger
     template<typename... Args>
     static void debug(logger_str_t<Args...> fmt, Args&&... args)
     {
-        log_impl<sage::Severity::DBG>(
+        log_impl<sage::Severity::Debug>(
             fmt.location,
             std::format(fmt.format, std::forward<Args>(args)...)
         );
@@ -237,7 +237,7 @@ class Logger
     template<typename... Args>
     static void debug(logger_runtime_str_t<Args...> fmt, Args&&... args)
     {
-        log_impl<sage::Severity::DBG>(
+        log_impl<sage::Severity::Debug>(
             fmt.location,
             std::vformat(fmt.format, std::make_format_args(args...))
         );
@@ -265,7 +265,7 @@ class Logger
     template<typename... Args>
     static void warn(logger_str_t<Args...> fmt, Args&&... args)
     {
-        log_impl<sage::Severity::WRN>(
+        log_impl<sage::Severity::Warn>(
             fmt.location,
             std::format(fmt.format, std::forward<Args>(args)...)
         );
@@ -273,7 +273,7 @@ class Logger
     template<typename... Args>
     static void warn(logger_runtime_str_t<Args...> fmt, Args&&... args)
     {
-        log_impl<sage::Severity::WRN>(
+        log_impl<sage::Severity::Warn>(
             fmt.location,
             std::vformat(fmt.format, std::make_format_args(args...))
         );
@@ -283,7 +283,7 @@ class Logger
     template<typename... Args>
     static void error(logger_str_t<Args...> fmt, Args&&... args)
     {
-        log_impl<sage::Severity::ERR>(
+        log_impl<sage::Severity::Error>(
             fmt.location,
             std::format(fmt.format, std::forward<Args>(args)...)
         );
@@ -294,7 +294,7 @@ class Logger
     template<typename... Args>
     static void error(logger_runtime_str_t<Args...> fmt, Args&&... args)
     {
-        log_impl<sage::Severity::ERR>(
+        log_impl<sage::Severity::Error>(
             fmt.location,
             std::vformat(fmt.format, std::make_format_args(args...))
         );
@@ -307,7 +307,7 @@ class Logger
     template<typename... Args>
     static void fatal(logger_str_t<Args...> fmt, Args&&... args)
     {
-        log_impl<sage::Severity::FTL>(
+        log_impl<sage::Severity::Fatal>(
             fmt.location,
             std::format(fmt.format, std::forward<Args>(args)...)
         );
@@ -320,7 +320,7 @@ class Logger
     template<typename... Args>
     static void fatal(logger_runtime_str_t<Args...> fmt, Args&&... args)
     {
-        log_impl<sage::Severity::FTL>(
+        log_impl<sage::Severity::Fatal>(
             fmt.location,
             std::vformat(fmt.format, std::make_format_args(args...))
         );

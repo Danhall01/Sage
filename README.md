@@ -32,9 +32,10 @@ Each submodule has its own documentation under [`docs/`](docs/), including its c
 Sage builds with CMake:
 
 ```
-mkdir build && cd build
-cmake ..
-cmake --build .
+# Optional: <-DCMAKE_...>
+cmake -S . -B build -G Ninja
+# Optional: -j<N-threads>
+cmake --build build
 ```
 Sage can optionally be built as a shared library using the `SAGE_BUILD_SHARED_LIBS` flag when compiling.
 

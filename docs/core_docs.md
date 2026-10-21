@@ -94,9 +94,9 @@ not be `#define`d in source.
 | `uintptr` | Pointer-sized unsigned | unsigned pointer-width int | |
 | `usize` | Size | unsigned, pointer-width | result of `sizeof` |
 | `isize` | Size | signed, pointer-width | signed counterpart of `usize` |
-| `char8` | Character | `char` | 8-bit, enforced via `static_assert` |
-| `char16` | Character | `__CHAR16_TYPE__` | |
-| `char32` | Character | `__CHAR32_TYPE__` | |
+| `char8` | Character | `char8_t` | |
+| `char16` | Character | `char16_t` | |
+| `char32` | Character | `char32_t` | |
 | `uchar8` | Unsigned character | unsigned counterpart of `char8` | |
 | `uchar16` | Unsigned character | unsigned counterpart of `char16` | |
 | `uchar32` | Unsigned character | unsigned counterpart of `char32` | |
@@ -173,22 +173,22 @@ the enum behind the `SAGE_LOG_ENABLED_SEVERITY` bitmask described in the
 [Logger documentation](logger_docs.md).
 
 ```cpp
-enum class Severity : sage::types::uint8;
+enum class Severity : sage::types::byte;
 ```
 
 | Enumerator | Value | Bit | Binary |
 |---|---|---|---|
-| `TRACE` | `1 << 0` | 0 (LSB) | `0b000001` |
-| `DEBUG` | `1 << 1` | 1 | `0b000010` |
-| `INFO` | `1 << 2` | 2 | `0b000100` |
-| `WARN` | `1 << 3` | 3 | `0b001000` |
-| `ERROR` | `1 << 4` | 4 | `0b010000` |
-| `FATAL` | `1 << 5` | 5 (MSB) | `0b100000` |
+| `Trace` | `1 << 0` | 0 (LSB) | `0b000001` |
+| `Debug` | `1 << 1` | 1 | `0b000010` |
+| `Info` | `1 << 2` | 2 | `0b000100` |
+| `Warn` | `1 << 3` | 3 | `0b001000` |
+| `Error` | `1 << 4` | 4 | `0b010000` |
+| `Fatal` | `1 << 5` | 5 (MSB) | `0b100000` |
 
 Levels run from most to least verbose:
 
 ```
-TRACE < DEBUG < INFO < WARN < ERROR < FATAL
+Trace < Debug < Info < Warn < Error < Fatal
 ```
 
 Every enumerator occupies exactly one bit, so levels can be combined into a
@@ -198,19 +198,19 @@ or testing bits:
 ```cpp
 import sage;
 
-// Only INFO, WARN, ERROR, FATAL
+// Only Info, Warn, Error, Fatal
 constexpr uint8 mask =
-    static_cast<uint8>(sage::Severity::INFO)  |
-    static_cast<uint8>(sage::Severity::WARN)  |
-    static_cast<uint8>(sage::Severity::ERROR) |
-    static_cast<uint8>(sage::Severity::FATAL);   // 0b111100
+    static_cast<uint8>(sage::Severity::Info)  |
+    static_cast<uint8>(sage::Severity::Warn)  |
+    static_cast<uint8>(sage::Severity::Error) |
+    static_cast<uint8>(sage::Severity::Fatal);   // 0b111100
 
 constexpr bool is_enabled(sage::Severity level) {
     return (mask & static_cast<uint8>(level)) != 0;
 }
 
-static_assert(!is_enabled(sage::Severity::DEBUG));
-static_assert(is_enabled(sage::Severity::ERROR));
+static_assert(!is_enabled(sage::Severity::Debug));
+static_assert(is_enabled(sage::Severity::Error));
 ```
 
 ---
@@ -224,7 +224,7 @@ Numeric limits and size helpers in `sage::numerics` (module
 ### Integer Limits
 
 All limits are based on the `limit_of<>` struct contained under the `sage::limits` namespace. This struct can be used as a shorthand for the <limit> standard library.
-Each limit_of contains the functions `::min()`, `::max()`, `::smallest()`, and `::epsilon()`.
+Each limit_of contains the functions `::min()`, `::max()`, `::lowest()`, and `::epsilon()`.
 
 | Constant |
 |---|
@@ -267,11 +267,12 @@ import sage;
 
 using namespace sage::numerics;
 
-constexpr usize stack_size  = KiB(64);   //     65'536 bytes
-constexpr usize arena_size  = MiB(16);   // 16'777'216 bytes
-constexpr usize packet_size = KB(1);     //      1'000 bytes
+constexpr usize stack_size  = KiB(64U);   //     65'536 bytes
+constexpr usize arena_size  = MiB(16U);   // 16'777'216 bytes
+constexpr usize packet_size = KB(1U);     //      1'000 bytes
 
-static_assert(KiB(1) == 1'024);
+static_assert(KiB(1U) == 1'024);
+static_assert(KiB(1.0f) == 1024.0);
 ```
 
 ---
@@ -309,8 +310,8 @@ A type `T` satisfies `numeric_type` when all of the following hold:
 |---|---|---|
 | `int`, `unsigned`, `long`, `uint64`, `usize` | ✅ | All operators valid |
 | `char`, `bool` | ✅ | Promote to `int` |
-| Unscoped `enum` | ✅ | Converts to an integer type |
 | `float`, `double` | ✅| Converts to floating-point types |
+| Unscoped `enum` | ❌ | Converts to an integer type |
 | Scoped `enum class` | ❌ | No implicit arithmetic |
 | Pointers | ❌ | `*` and `/` are not defined |
 
@@ -330,8 +331,8 @@ constexpr auto add_one(T value) -> T {
 
 static_assert(halve(10) == 5); // Pass
 static_assert(halve("10") == 5); // Fail
-static_assert(add_one(3) == 4); // Pass
-static_assert(add_one(-5) == -4); // Fail
+static_assert(add_one(3U) == 4); // Pass
+static_assert(add_one(3) == 4); // Fail
 ```
 
 ---

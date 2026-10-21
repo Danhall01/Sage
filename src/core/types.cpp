@@ -6,7 +6,7 @@ module;
 #else
     #include <cstdint>
 #endif
-export module sage:core_types;
+export module sage:core.types;
 export namespace sage::types
 {
 #if defined(__GLIBC__)
@@ -142,5 +142,5 @@ using float64_least = long double;
 }  // namespace sage::types
 
 #ifndef SAGE_TYPES_SCOPE_ENABLED
-using namespace sage::types;
+export using namespace sage::types;
 #endif

@@ -1,6 +1,6 @@
-# Sage Logger Module Documentation (import sage:io_logger)
+# Sage Logger Module Documentation (import sage:io.logger)
 
-A lightweight, compile-time configurable logging module. Behaviour is primarily tuned through compile definitions; however, a custom logger can be used when the default does not fit your needs.
+A lightweight, compile-time configurable logging module. Behaviour is primarily tuned through compile definitions; however, a custom Logger can be used when the default does not fit your needs.
 
 
 ## Table of Contents
@@ -9,7 +9,7 @@ A lightweight, compile-time configurable logging module. Behaviour is primarily 
 - [Severity Levels](#severity-levels)
 - [Basic Usage](#basic-usage)
 - [Customizing Behavior via Compile Flags](#customizing-behavior-via-compile-flags)
-- [Building a Custom Logger](#building-a-custom-logger)
+- [Building a Custom Logger](#building-a-custom-Logger)
 - [Quick Reference](#quick-reference)
 
 ---
@@ -23,13 +23,14 @@ for the full setup.
 
 | Setting | Type | Description | Default |
 |---|---|---|---|
-| `SAGE_LOG_ENABLED_SEVERITY` | bitmask | One bit per `sage::Severity` level (`TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`, `FATAL`). `1` = enabled, `0` = disabled. | All enabled |
+| `SAGE_LOG_ENABLED_SEVERITY` | bitmask | One bit per `sage::Severity` level (`Trace`, `Debug`, `Info`, `Warn`, `Error`, `Fatal`). `1` = enabled, `0` = disabled. | All enabled |
 | `SAGE_LOG_NO_FORMATTING` | bool | Disables internal extra formatting applied to strings. | `false` |
+| `SAGE_LOG_FORMATTING_OPT_WHENCE_SEVERITY` | bitmask | Decides what levels of Severity displays which function the print came from. | `Warn`, `Error`, `Fatal` |
 | `SAGE_LOG_NO_COLORS` | bool | Disables colored output to stdout/stderr. (File output is never colored regardless of this setting.) | `false` |
 | `SAGE_LOG_WRITE_TO_FILE` | bool | Enables writing log output to `last_run.log` on every log call. | `false` |
-| `SAGE_LOG_THROW_ON_ERROR` | bool | Throws a `std::runtime_error` whenever an `ERROR` level log is emitted. | `false` |
-| `SAGE_LOG_THROW_ON_FATAL` | bool | Throws a `std::runtime_error` whenever an `FATAL` level log is emitted. Replaces Abort(). | `false` |
-| `SAGE_LOG_NO_DEFAULT_LOGGER` | bool | Disables the built-in `sage::log` module so you can supply your own custom logger (see [Building a Custom Logger](#building-a-custom-logger)). | `false` |
+| `SAGE_LOG_THROW_ON_ERROR` | bool | Throws a `std::runtime_error` whenever an `Error` level log is emitted. | `false` |
+| `SAGE_LOG_THROW_ON_FATAL` | bool | Throws a `std::runtime_error` whenever an `Fatal` level log is emitted. Replaces Abort(). | `false` |
+| `SAGE_LOG_NO_DEFAULT_LOGGER` | bool | Disables the built-in `sage::log` module so you can supply your own custom Logger (see [Building a Custom Logger](#building-a-custom-Logger)). | `false` |
 
 ---
 
@@ -38,12 +39,12 @@ for the full setup.
 `sage::Severity` defines six levels, from most to least verbose:
 
 ```
-TRACE < DEBUG < INFO < WARN < ERROR < FATAL
+Trace < Debug < Info < Trace < Error < Fatal
 ```
 
 Each level corresponds to a single bit in the `SAGE_LOG_ENABLED_SEVERITY`
 bitmask. Setting a bit to `1` enables that level; `0` disables it. This lets
-you strip out unwanted levels (like `TRACE`/`DEBUG`) from release builds without
+you strip out unwanted levels (like `Trace`/`Debug`) from release builds without
 touching call sites.
 
 NOTE: Since `SAGE_LOG_ENABLED_SEVERITY` is a compile definition, it can't be set
@@ -69,16 +70,16 @@ obvious at a glance. Binary literal are easier to read and edit when available.
 
 | Bit | Level |
 |---|---|
-| 0 (LSB) | `TRACE` |
-| 1 | `DEBUG` |
-| 2 | `INFO` |
-| 3 | `WARN` |
-| 4 | `ERROR` |
-| 5 (MSB) | `FATAL` |
+| 0 (LSB) | `Trace` |
+| 1 | `Debug` |
+| 2 | `Info` |
+| 3 | `Warn` |
+| 4 | `Error` |
+| 5 (MSB) | `Fatal` |
 
 **Same value, three formats:**
 
-| Format | All enabled | Only INFO and above |
+| Format | All enabled | Only Info and above |
 |---|---|---|
 | Binary *(most readable)* | `0b111111` | `0b111100` |
 | Hex | `0x3F` | `0x3C` |
@@ -88,7 +89,7 @@ obvious at a glance. Binary literal are easier to read and edit when available.
 # All six levels enabled
 cmake -DSAGE_LOG_ENABLED_SEVERITY=0x3F ..
 
-# Only INFO, WARN, ERROR, FATAL (TRACE/DEBUG disabled) — hex
+# Only Info, Warn, Error, Fatal (Trace/Debug disabled) — hex
 cmake -DSAGE_LOG_ENABLED_SEVERITY=0x3C ..
 
 # Same result, spelled as a binary literal (bit-by-bit is easiest to verify)
@@ -106,7 +107,7 @@ With the default logger enabled (i.e. `SAGE_LOG_NO_DEFAULT_LOGGER` **not**
 set), the library exposes `sage::log` directly:
 
 ```cpp
-#include <sage/log.hpp>
+import sage;
 
 int main() {
     sage::log::trace("Starting up...");
@@ -120,6 +121,7 @@ int main() {
 
 Only calls whose severity bit is enabled in `SAGE_LOG_ENABLED_SEVERITY`
 will produce output — disabled levels compile down to no-ops.
+> Note: Trace, Debug, Info goes to stdout, while error types goes to stderr by default
 
 ---
 
@@ -153,13 +155,13 @@ A few common configurations:
 
 **Silence debug noise in release builds**
 ```
-# TRACE and DEBUG disabled; INFO, WARN, ERROR, FATAL remain enabled
+# Trace and Debug disabled; Info, Warn, Error, Fatal remain enabled
 cmake -DSAGE_LOG_ENABLED_SEVERITY=0x3C ..
 ```
 
 **Persist logs to disk for post-mortem debugging**
 ```
-# Output is written/appended to `last_run.log`
+# Last output is (over)written to `last_run.log`
 cmake -DSAGE_LOG_WRITE_TO_FILE=1 ..
 ```
 
@@ -189,41 +191,48 @@ cmake -DSAGE_LOG_NO_FORMATTING=1 ..
 
 If the default `sage::log` doesn't fit your needs (e.g. you need a specific write function, or different configs per module), you can replace it entirely.
 
-### 1. Enable custom logger support
+### 1. Enable custom Logger support
 
 ```
 cmake -DSAGE_LOG_NO_DEFAULT_LOGGER=1 ..
 ```
 
 This disables the built-in `sage::log` module and is **required** before a
-custom logger can be defined using the `sage::log` alias.
+custom Logger can be defined using the `sage::log` alias.
 
-### 2. Define a compile-time config struct
+### 2. Define a compile-time Config struct
 
 ```cpp
-struct MyConfig : sage::_backend::log::config {
+// Only an example, struct must be compile time accessible
+struct MyConfig : sage::_backend::log::Config {
     // Override / define config members as needed, e.g.:
-    // uint8_t enabled_severity = 0b111100;
+    // byte enabled_severity = 0b111100;
+    // bool formatting = true;
+    // byte formatting_whence = 0b110000;
     // bool colors = true;
     // bool write_to_file = true;
+    // bool throw_on_error = false;
+    // bool throw_on_fatal = true;
     // void (*std_writer)(sage::Severity, std::string_view) = &my_stdout_writer;
     // void (*file_writer)(std::string_view)                = &my_file_writer;
+    // constexpr std::string_view (*format_prefix)(sage::Severity) = &my_format_prefix;
+    // constexpr std::string_view (*format_color)(sage::Severity) = &my_format_colors;
 };
 ```
 
-### 3. Alias the logger with your config
+### 3. Alias the Logger with your Config
 
 ```cpp
 namespace sage {
-    using log = sage::_backend::log::logger<MyConfig>;
+    using log = sage::_backend::log::Logger<MyConfig>;
 }
 ```
 
-Note: The `sage` namespace wrapper is optional — you're free to alias the logger
+Note: The `sage` namespace wrapper is optional — you're free to alias the Logger
 under any name/namespace you like:
 
 ```cpp
-using my_logger = sage::_backend::log::logger<MyConfig>;
+using my_logger = sage::_backend::log::Logger<MyConfig>;
 
 my_logger::info("Using a custom-named logger");
 ```
@@ -239,16 +248,16 @@ cmake -DSAGE_LOG_NO_DEFAULT_LOGGER=1 -DSAGE_LOG_WRITE_TO_FILE=1 ..
 
 Source:
 ```cpp
-#include <sage/log.hpp>
+import sage;
 
 // Any unset member functions will retain their default values
-sage::_backend::log::config MyConfig {
-    .enabled_severity = 0b111100; // no TRACE/DEBUG
+constexpr sage::_backend::log::Config MyConfig {
+    .enabled_severity = 0b111100; // no Trace/Debug
     .write_to_file    = true;
 };
 
 namespace sage {
-    using log = sage::_backend::log::logger<MyConfig>;
+    using log = sage::_backend::log::Logger<MyConfig>;
 }
 
 int main() {
@@ -271,5 +280,5 @@ int main() {
 | Strip extra string formatting | `SAGE_LOG_NO_FORMATTING` |
 | No ANSI colors on stdout | `SAGE_LOG_NO_COLORS` |
 | Write logs to `last_run.log` | `SAGE_LOG_WRITE_TO_FILE` |
-| Throw on `ERROR` logs | `SAGE_LOG_THROW_ON_ERROR` |
-| Replace the default logger | `SAGE_LOG_NO_DEFAULT_LOGGER` + custom `config` struct |
+| Throw on `Error` logs | `SAGE_LOG_THROW_ON_ERROR` |
+| Replace the default Logger | `SAGE_LOG_NO_DEFAULT_LOGGER` + custom `Config` struct |

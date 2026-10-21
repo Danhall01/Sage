@@ -1,7 +1,7 @@
 module;
 #include <concepts>
 
-export module sage:core_template_types;
+export module sage:core.template_types;
 
 namespace sage::template_types
 {

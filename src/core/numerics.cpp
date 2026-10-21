@@ -1,9 +1,9 @@
 module;
 #include <limits>
 #include <type_traits>
-export module sage:core_numerics;
-export import :core_types;
-export import :core_template_types;
+export module sage:core.numerics;
+export import :core.types;
+export import :core.template_types;
 
 export namespace sage::limits
 {
@@ -42,37 +42,37 @@ using float64_least = limit_of<sage::types::float64_least>;
 
 namespace sage::numerics
 {
-constexpr auto binary_kib = 1'024U;
-constexpr auto decimal_kb = 1'000U;
+constexpr auto binary_kib = 1'024LU;
+constexpr auto decimal_kb = 1'000LU;
 
 export template<sage::template_types::unsigned_numeric_type T>
 constexpr auto KiB(T value)
     -> std::conditional_t<std::is_floating_point_v<T>, sage::types::float64, sage::types::usize>
-{ return static_cast<sage::types::usize>(value * binary_kib); }
+{ return value * binary_kib; }
 
 export template<sage::template_types::unsigned_numeric_type T>
 constexpr auto MiB(T value)
     -> std::conditional_t<std::is_floating_point_v<T>, sage::types::float64, sage::types::usize>
-{ return static_cast<sage::types::usize>(value * binary_kib * binary_kib); }
+{ return value * binary_kib * binary_kib; }
 
 export template<sage::template_types::unsigned_numeric_type T>
 constexpr auto GiB(T value)
     -> std::conditional_t<std::is_floating_point_v<T>, sage::types::float64, sage::types::usize>
-{ return static_cast<sage::types::usize>(value * binary_kib * binary_kib * binary_kib); }
+{ return value * binary_kib * binary_kib * binary_kib; }
 
 
 export template<sage::template_types::unsigned_numeric_type T>
 constexpr auto KB(T value)
     -> std::conditional_t<std::is_floating_point_v<T>, sage::types::float64, sage::types::usize>
-{ return static_cast<sage::types::usize>(value * decimal_kb); }
+{ return value * decimal_kb; }
 
 export template<sage::template_types::unsigned_numeric_type T>
 constexpr auto MB(T value)
     -> std::conditional_t<std::is_floating_point_v<T>, sage::types::float64, sage::types::usize>
-{ return static_cast<sage::types::usize>(value * decimal_kb * decimal_kb); }
+{ return value * decimal_kb * decimal_kb; }
 
 export template<sage::template_types::unsigned_numeric_type T>
 constexpr auto GB(T value)
     -> std::conditional_t<std::is_floating_point_v<T>, sage::types::float64, sage::types::usize>
-{ return static_cast<sage::types::usize>(value * decimal_kb * decimal_kb * decimal_kb); }
+{ return value * decimal_kb * decimal_kb * decimal_kb; }
 }  // namespace sage::numerics

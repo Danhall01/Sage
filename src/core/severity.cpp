@@ -1,11 +1,11 @@
 module;
 
-export module sage:core_severity;
-export import :core_types;
+export module sage:core.severity;
+export import :core.types;
 
 export namespace sage
 {
-enum class Severity : sage::types::uint8
+enum class Severity : sage::types::byte
 {
     Trace = 1 << 0,
     Debug = 1 << 1,

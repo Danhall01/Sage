@@ -206,8 +206,9 @@ class Logger
     static auto log_impl(const std::source_location& whence, std::string_view msg)
         -> std::conditional_t<capture, std::string, void>
     {
-        constexpr sage::types::bool8 keep_plain = cfg.write_to_file || capture;
         constexpr sage::types::bool8 use_buffer = cfg.formatting || cfg.colors || capture;
+        constexpr sage::types::bool8 keep_plain = (cfg.write_to_file && cfg.file_writer != nullptr)
+                                                  || capture;
 
         constexpr sage::types::bool8 color_merge = cfg.colors && !keep_plain;
         constexpr std::string_view   color_reset = "\033[0m";
@@ -255,7 +256,7 @@ class Logger
 
         std::string_view out = use_buffer ? std::string_view{buffer} : msg;
 
-        if constexpr (cfg.write_to_file)
+        if constexpr (cfg.write_to_file && cfg.file_writer != nullptr)
             cfg.file_writer(out);
 
         if constexpr (keep_plain && cfg.colors)
@@ -265,7 +266,8 @@ class Logger
             out     = buffer;  // Insert might realloc
         }
 
-        cfg.std_writer(level, out);
+        if constexpr (cfg.std_writer != nullptr)
+            cfg.std_writer(level, out);
 
         if constexpr (capture)
         {

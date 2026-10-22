@@ -311,7 +311,7 @@ A type `T` satisfies `numeric_type` when all of the following hold:
 | `int`, `unsigned`, `long`, `uint64`, `usize` | ✅ | All operators valid |
 | `char`, `bool` | ✅ | Promote to `int` |
 | `float`, `double` | ✅| Converts to floating-point types |
-| Unscoped `enum` | ❌ | Converts to an integer type |
+| Unscoped `enum` | ❌ | No implicit arithmetic |
 | Scoped `enum class` | ❌ | No implicit arithmetic |
 | Pointers | ❌ | `*` and `/` are not defined |
 
